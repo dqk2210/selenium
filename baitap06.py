@@ -7,7 +7,7 @@ import time
 #Khởi tạo Webdriver
 driver = webdriver.Chrome()
 
-for i in range(65, 91):
+for i in range(70, 71):
     url = "https://en.wikipedia.org/wiki/List_of_painters_by_name_beginning_with_%22"+chr(i)+"%22"
     try:
         #Mo trang
@@ -26,3 +26,5 @@ for i in range(65, 91):
         print("Error!")
 #Dong web
 driver.quit()
+count = 0
+for link in all_links:
