@@ -36,10 +36,7 @@ except:
 
 # Lấy ngày mất
 try:
-    death_element = driver.find_element(
-        By.XPATH,
-        "//table[contains(@class,'infobox')]//th[.='Died']/following-sibling::td"
-    )
+    death_element = driver.find_element(By.XPATH,"//table[contains(@class,'infobox')]//th[.='Died']/following-sibling::td")
     death_text = death_element.text
     death = re.findall(r'[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}', death_text)[0]
 except :

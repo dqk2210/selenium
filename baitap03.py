@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 import time
 
 driver = webdriver.Chrome()
-driver.maximize_window()
 
 url = "https://en.wikipedia.org/wiki/List_of_painters_by_name_beginning_with_%22P%22"
 driver.get(url)
