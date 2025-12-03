@@ -26,7 +26,7 @@ options.headless = False
 # Khởi tạo driver
 driver = webdriver.Firefox(options = options, service=ser)
 # Tạo url
-url = 'https://apps.lms.hutech.edu.vn/authn/login?next'
+url = 'https://x.com/i/flow/login'
 
 # Truy cập
 driver.get(url)
@@ -38,7 +38,7 @@ time.sleep(3)
 my_email = input('Please provide your email:')
 my_password = getpass.getpass('Please provide your password:')
 
-firstname_input = driver.find_element(By.XPATH, "//input[@name='emailOrUsername']")
+firstname_input = driver.find_element(By.XPATH, "//input[@name='username']")
 lastname_input = driver.find_element(By.XPATH, "//input[@name='password']")
 actionChains = ActionChains(driver)
 time.sleep(1)
@@ -54,5 +54,18 @@ actionChains.send_keys(Keys.ENTER)
 
 actionChains.perform()
 time.sleep(10)
+
+tweets = driver.find_elements(By.CSS_SELECTOR, '[data-testid="tweet"]')
+for tweet in tweets:
+    tag_text = tweet.find_element(By.CSS_SELECTOR,'div[data-testid="User-Names"]').text
+    name, handle, _, timestamp = tag_text.split('\n')
+    tweet_text = tweet.find_element(By.CSS_SELECTOR,'div[data-testid="tweetText"]').text
+    retweet_count = tweet.find_element(By.CSS_SELECTOR,'div[data-testid="retweet"]').text
+    like_count = tweet.find_element(By.CSS_SELECTOR,'div[data-testid="like"]').text
+    reply_count = tweet.find_element(By.CSS_SELECTOR,'div[data-testid="reply"]').text
+    print(name, handle)
+    print(tweet_text)
+    print("--------------")
+
 
 driver.quit()

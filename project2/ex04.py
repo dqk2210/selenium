@@ -26,7 +26,7 @@ my_password = getpass.getpass('Please provide your password:')
 
 actionChains = ActionChains(driver)
 time.sleep(1)
-for i in range(5):
+for i in range(2):
     actionChains.key_down(Keys.TAB).perform()
     
 actionChains.send_keys(my_email).perform()

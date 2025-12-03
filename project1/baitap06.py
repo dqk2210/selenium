@@ -8,7 +8,26 @@ import re
 
 # Tạo dataframe rỗng
 all_links = []
+all_nationalities = []
 d = pd.DataFrame({'name': [], 'birth': [], 'death': [], 'nationality': []})
+
+def extract_nationality(li_text: str) -> str:
+    # Cắt phần sau dấu ) (sau tên + năm sinh/tử)
+    parts = re.split(r'\)\s*[,\.]\s*', li_text, maxsplit=1)
+    if len(parts) == 2:
+        tail = parts[1].strip()
+    else:
+        tail = li_text
+
+    # Cắt trước các từ chỉ nghề nghiệp
+    tail = re.split(
+        r'\b(painter|artist|sculptor|printmaker|illustrator|ceramicist|muralist|miniaturist|portraitist|landscape)\b',
+        tail,
+        maxsplit=1,
+        flags=re.IGNORECASE
+    )[0]
+
+    return tail.strip(' ,.;')
 
 #Khởi tạo Webdriver
 for i in range(70, 71):
@@ -26,22 +45,33 @@ for i in range(70, 71):
         ul_painters = ul_tags[19]
         li_tags = ul_painters.find_elements(By.TAG_NAME, "li")
 
-        links = [tag.find_element(By.TAG_NAME, "a").get_attribute("href") for tag in li_tags]
+        for tag in li_tags:
+            try:
+                a_tag = tag.find_element(By.TAG_NAME, "a")
+                link = a_tag.get_attribute("href")
+                li_text = tag.text
+                nationality = extract_nationality(li_text)
 
-
-        for x in links:
-            all_links.append(x)
+                all_links.append(link)              # như code cũ
+                all_nationalities.append(nationality)  # quốc tịch tương ứng
+            except:
+                pass
     except:
         print("Error!")
 print(len(all_links))
 driver.quit()
+
+
 count = 0
+idx = 0 
 for link in all_links:
     if (count > 3):
         break
     count = count+1;
 
-    print(link)
+    nationality = all_nationalities[idx]
+    idx += 1
+    print(link, " | ", nationality)
     try:
         driver = webdriver.Chrome()
         url = link
@@ -58,33 +88,30 @@ for link in all_links:
 
         # Lấy ngày sinh
         try:
-            birth_element = driver.find_element(By.XPATH,"//table[contains(@class,'infobox')]//th[.='Born']/following-sibling::td")
+            birth_element = driver.find_element(By.XPATH, "//th[text()='Born']/following-sibling::td")
             birth_text = birth_element.text
-            birth = re.findall(r'[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}', birth_text)[0]
+            # Trích xuất định dạng ngày (ví dụ: 12 June 1900)
+            birth_match = re.findall(r'\b(?:\d{1,2}\s+[A-Za-z]+\s+\d{4}|[A-Za-z]+\s+\d{4}|\d{4})\b', birth_text)
+            birth = birth_match[0] if birth_match else ""
         except:
             birth = ""
-
-        # Lấy ngày mất
-        try:
-            death_element = driver.find_element(By.XPATH,"//table[contains(@class,'infobox')]//th[.='Died']/following-sibling::td")
-            death_text = death_element.text
-            death = re.findall(r'[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}', death_text)[0]
-        except :
-            death = ""
-
-        # Lấy quốc tịch 
-        # try:
-        #     nationality_element = driver.find_element(By.XPATH, "//*[@class='IPA-label IPA-label-small']")
-        #     nationality = nationality_element.text.strip(":")
             
+        # 3. Lấy ngày mất (Died)
+        try:
+            death_element = driver.find_element(By.XPATH, "//th[text()='Died']/following-sibling::td")
+            death = death_element.text
+            death_match = re.findall(r'\b(?:\d{1,2}\s+[A-Za-z]+\s+\d{4}|[A-Za-z]+\s+\d{4}|\d{4})\b', death)
+            death = death_match[0] if death_match else ""
+        except:
+            death = ""
+            
+        # # 4. Lấy quốc tịch (Nationality)
+        # try:
+        #     nationality_element = driver.find_element(By.CSS_SELECTOR, "table.infobox .birthplace")
+        #     nationality = nationality_element.text.strip(":")
         # except:
         #     nationality = ""
-        # Lấy birthplace
-        try:
-            nationality_element = driver.find_element(By.CSS_SELECTOR, "table.infobox .birthplace")
-            nationality = nationality_element.text.strip(":")
-        except:
-            nationality = ""
+        
 
         # Tạo dict thông tin hoạ sĩ
         painter = {'name': name, 'birth': birth, 'death': death, 'nationality': nationality}
