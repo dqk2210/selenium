@@ -20,12 +20,7 @@ def extract_nationality(li_text: str) -> str:
         tail = li_text
 
     # Cắt trước các từ chỉ nghề nghiệp
-    tail = re.split(
-        r'\b(painter|artist|sculptor|printmaker|illustrator|ceramicist|muralist|miniaturist|portraitist|landscape)\b',
-        tail,
-        maxsplit=1,
-        flags=re.IGNORECASE
-    )[0]
+    tail = re.split(r'\b(painter|artist|sculptor|printmaker|illustrator|ceramicist|muralist|miniaturist|portraitist|landscape)\b',tail,maxsplit=1,flags=re.IGNORECASE)[0]
 
     return tail.strip(' ,.;')
 
@@ -35,9 +30,7 @@ for i in range(70, 71):
     driver = webdriver.Chrome()
     url = "https://en.wikipedia.org/wiki/List_of_painters_by_name_beginning_with_%22"+chr(i)+"%22"
     try:
-        #Mo trang
         driver.get(url)
-        #Doi time de tai trang
 
         time.sleep(2)
 
@@ -52,7 +45,7 @@ for i in range(70, 71):
                 li_text = tag.text
                 nationality = extract_nationality(li_text)
 
-                all_links.append(link)              # như code cũ
+                all_links.append(link)              
                 all_nationalities.append(nationality)  # quốc tịch tương ứng
             except:
                 pass
@@ -77,10 +70,9 @@ for link in all_links:
         url = link
         driver.get(url)
 
-# Đợi 2 giây
         time.sleep(2)
 
-        # Lấy tên hoạ sĩ (h1)
+        # Lấy tên hoạ sĩ 
         try:
             name = driver.find_element(By.TAG_NAME, "h1").text
         except:

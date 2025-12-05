@@ -10,7 +10,7 @@ import time
 import pandas as pd
 
 # Đường dẫn đến file thực thi geckodriver
-gecko_path = r"D:/Khanh/hoc/ma nguon mo/project2/geckodriver.exe"
+gecko_path = r"D:/Khanh/hoc/ma nguon mo/crawl/selenium/project2/geckodriver.exe"
 
 # Khởi tởi đối tượng dịch vụ với đường geckodriver
 ser = Service(gecko_path)
@@ -36,9 +36,9 @@ time.sleep(2)
 firstname_input = driver.find_element(By.XPATH, "//input[@name='firstname']")
 lastname_input = driver.find_element(By.XPATH, "//input[@name='lastname']")
 
-firstname_input.send_keys('Nhat Tung')
+firstname_input.send_keys('Do Quoc')
 time.sleep(1)
-lastname_input.send_keys("Le")
+lastname_input.send_keys("Khanh")
 
 time.sleep(2)
 buttton = driver.find_element(By.XPATH, "//input[@type='submit']")

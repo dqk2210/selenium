@@ -9,53 +9,45 @@ import pandas as pd
 import random
 import re
 
-# ================== CẤU HÌNH NGƯỜI DÙNG (SỬA Ở ĐÂY) ==================
-# HÃY THAY DÒNG DƯỚI BẰNG AUTH_TOKEN MỚI CỦA BẠN LẤY TỪ F12
-MY_AUTH_TOKEN = "e87..................." 
+MY_AUTH_TOKEN = "1bbdd10ec369c566c080f88b0449a1131c8be012"
 
-# Đường dẫn đến geckodriver và firefox (Sửa lại cho đúng máy bạn)
 GECKO_PATH = r"D:/Khanh/hoc/ma nguon mo/crawl/selenium/project2/geckodriver.exe"
 FIREFOX_BINARY_PATH = "C:/Program Files/Mozilla Firefox/firefox.exe"
 
-# ================== KHỞI TẠO DRIVER ==================
 ser = Service(GECKO_PATH)
 options = webdriver.firefox.options.Options()
 options.binary_location = FIREFOX_BINARY_PATH
 
-# Các thiết lập để ẩn danh tính bot cơ bản
+# Các thiết lập để ẩn danh tính bot 
 options.set_preference("dom.webdriver.enabled", False)
 options.set_preference("useAutomationExtension", False)
 
 driver = webdriver.Firefox(options=options, service=ser)
-wait = WebDriverWait(driver, 15) # Thời gian chờ tối đa 15s
+wait = WebDriverWait(driver, 15)
 
-def parse_metric(text):
-    """Làm sạch số liệu (VD: '5.5K' -> '5.5K', '' -> '0')"""
-    if not text: return "0"
-    return text.replace('\n', '').strip()
+# def parse_metric(text):
+#     """Làm sạch số liệu (VD: '5.5K' -> '5.5K', '' -> '0')"""
+#     if not text: return "0"
+#     return text.replace('\n', '').strip()
 
 try:
-    # 1. Truy cập trang chủ lần đầu để tạo session
     print("Truy cập trang x.com...")
     driver.get("https://x.com")
     time.sleep(2)
 
-    # 2. TIÊM COOKIE (BƯỚC QUAN TRỌNG NHẤT)
     print(f"Đang tiêm auth_token: {MY_AUTH_TOKEN[:10]}...")
     driver.add_cookie({
         'name': 'auth_token',
-        'value': "1bbdd10ec369c566c080f88b0449a1131c8be012",
+        'value': MY_AUTH_TOKEN,
         'domain': '.x.com',
         'path': '/',
         'secure': True,
         'httpOnly': True
     })
 
-    # 3. Tải lại trang để áp dụng Cookie
     print("Đã thêm Cookie. Đang tải lại trang...")
     driver.refresh()
     
-    # 4. Chờ xem đăng nhập thành công không
     try:
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'article[data-testid="tweet"]')))
         print(">>> ĐĂNG NHẬP THÀNH CÔNG! Bắt đầu cào dữ liệu chi tiết...")
@@ -64,9 +56,9 @@ try:
         driver.quit()
         exit()
 
-    # ================== CRAWL DỮ LIỆU CHI TIẾT ==================
+    # CRAWL DỮ LIỆU CHI TIẾT 
     tweets_data = []
-    seen_ids = set() # Dùng Tweet ID để lọc trùng chính xác hơn
+    seen_ids = set() # Dùng Tweet ID để lọc trùng 
     max_tweets = 10       
     scroll_attempts = 0   
     max_scroll_attempts = 15 
@@ -126,16 +118,13 @@ try:
                     except:
                         content = ""
 
-                    # --- 4. Lấy Metrics (Reply, Retweet, Like, View) DỰA VÀO VỊ TRÍ ---
-                    # Logic mới: Tìm nhóm nút hành động (role="group") và lấy theo thứ tự
+                    # Tìm nhóm nút hành động (role="group") và lấy theo thứ tự
                     replies, retweets, likes, views = "0", "0", "0", "0"
                     
                     try:
                         # Tìm nhóm các nút (Reply, Retweet, Like, View, Share)
                         group = tweet.find_element(By.CSS_SELECTOR, 'div[role="group"]')
                         
-                        # Lấy tất cả các thẻ div con trực tiếp của group
-                        # Mỗi thẻ div này tương ứng với 1 nút
                         buttons = group.find_elements(By.XPATH, "./div")
                         
                         # Hàm lấy text bên trong nút (sử dụng innerText để lấy cả text ẩn nếu có)
@@ -199,12 +188,10 @@ try:
             print(f"Có lỗi trong quá trình scroll: {e}")
             break
 
-    # ================== KẾT THÚC ==================
     print(f"\nTổng kết: Lấy được {len(tweets_data)} tweets")
 
     if len(tweets_data) > 0:
         df = pd.DataFrame(tweets_data)
-        # Hiển thị thông tin cơ bản
         print(df[['username', 'likes', 'views', 'content']].head())
         
         filename = "tweets_full_info.csv"

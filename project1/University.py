@@ -23,7 +23,7 @@ driver = webdriver.Chrome()
 url = ("https://vi.wikipedia.org/wiki/Danh_s%C3%A1ch_tr%C6%B0%E1%BB%9Dng_%C4%91%E1%BA%A1i_h%E1%BB%8Dc,_h%E1%BB%8Dc_vi%E1%BB%87n_v%C3%A0_cao_%C4%91%E1%BA%B3ng_t%E1%BA%A1i_Vi%E1%BB%87t_Nam")
 try:
     driver.get(url)
-    time.sleep(3)  # đợi trang load
+    time.sleep(3) 
 
     # Lấy phần nội dung chính
     content = driver.find_element(By.CSS_SELECTOR, "#mw-content-text .mw-parser-output")
@@ -46,7 +46,6 @@ try:
                     all_links.append(href)
 
             except:
-                # có thể có hàng gộp / thiếu link → bỏ qua
                 pass
 
 except Exception as e:
@@ -62,9 +61,8 @@ print("Số link trường lấy được:", len(all_links))
 count = 0
 
 for link in all_links:
-    # Nếu muốn giới hạn số trường (ví dụ 20 đầu tiên) thì dùng điều kiện giống bài painters:
-    if count > 4:
-        break
+    # if count > 4:
+    #     break
 
     count += 1
     print(link)

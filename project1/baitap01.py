@@ -17,7 +17,7 @@ driver.get(url)
 time.sleep(2)
 
 #Lay tat ca cac the <a>
-tags = driver.find_elements(By.TAG_NAME, "a");
+tags = driver.find_elements(By.TAG_NAME, "a")
 
 #Tao ra danh sach lien ket
 links = [tag.get_attribute("href") for tag in tags]
