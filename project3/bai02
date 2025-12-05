@@ -1,0 +1,25 @@
+select * from painters_info
+
+select count(*) 
+from painters_info
+
+select * 
+from painters_info
+limit 5
+
+select distinct nationality from painters_info
+
+select name
+from painters_info
+where name like "%F%"
+
+select name, nationality 
+from painters_info 
+where nationality like "%French%"
+
+select name
+from painters_info
+where nationality IS NULL or nationality = ''
+
+SELECT name FROM painters_info WHERE nationality IS NULL OR nationality = ''
+
