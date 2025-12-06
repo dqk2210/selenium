@@ -155,7 +155,7 @@ try:
 
             print(f"da click 'Xem them' lan thu {click_count +1}")
             click_count += 1
-            time.sleep(5) # Đợi load sản phẩm mới (Mạng chậm thì tăng lên 5)
+            time.sleep(5) 
 
         except (TimeoutException, NoSuchElementException):
             print(" khong tim thay nut xem them hoac da het san pham")
@@ -164,8 +164,8 @@ try:
             print("Nut bi che, thu scroll them 200px...")
             driver.execute_script("window.scrollBy(0, 200);")
             time.sleep(2)
-        except Exception as e:
-            print(f"Lỗi khác khi click: {e}")
+        except:
+            print(f"Lỗi khác khi click")
             break
 
     #2. Lấy tất cả thẻ <a> trỏ tới sản phẩm
@@ -184,8 +184,8 @@ try:
     print(f"--> Tim thay tong cong {len(links)} link san pham")
     driver.quit()
 
-except Exception as e:
-    print(f"Lỗi khởi tạo driver hoặc lấy link: {e}")
+except:
+    print(f"Lỗi khởi tạo driver hoặc lấy link")
     if driver: driver.quit()
 
 ######################################################
@@ -249,7 +249,7 @@ try:
                 orig_price_el = driver.find_element(By.CSS_SELECTOR, "[data-test='strike_price']")
                 original_price = orig_price_el.text.replace("đ", "").replace(".", "").strip()
             except:
-                original_price = "" # Không có giảm giá
+                original_price = "" 
 
             
             #Donn vi tinh
@@ -291,9 +291,64 @@ try:
 
 except Exception as e:
     print(f"Lỗi khởi tạo driver đợt 2: {e}")
+print("\nHoàn tất quá trình cào và lưu dữ liệu tức thời.")
+
+
+    #Nhóm 1: Kiểm Tra Chất Lượng Dữ Liệu (Bắt buộc)
+    #     Kiểm tra trùng lặp (Duplicate Check): Kiểm tra và hiển thị tất cả các bản ghi có sự trùng lặp dựa trên trường product_url hoặc product_name.
+q1 = """select products_name, count(*) as SOLAN from products group by product_name having SOLAN > 1"""
+    #     Kiểm tra dữ liệu thiếu (Missing Data): Đếm số lượng sản phẩm không có thông tin Giá bán (price là NULL hoặc 0).
+q2 = """select count(*) as soluong from products where price is null or price = '' or price = 'Liên hệ' """
+    #     Kiểm tra giá: Tìm và hiển thị các sản phẩm có Giá bán lớn hơn Giá gốc/Giá niêm yết (logic bất thường).
+q3 = """select products_name, price, original_price from products where original_price !='' and cast(price as integer) > cast(original_price as integer) """
+    #     Kiểm tra định dạng: Liệt kê các unit (đơn vị tính) duy nhất để kiểm tra sự nhất quán trong dữ liệu.
+q4 = """select distinct unit from products"""
+    #     Tổng số lượng bản ghi: Đếm tổng số sản phẩm đã được cào.
+q5 = """select count(*) as tong from products"""
+    # Nhóm 2: Khảo sát và Phân Tích (Bổ sung)
+    #     Sản phẩm có giảm giá: Hiển thị 10 sản phẩm có mức giá giảm (chênh lệch giữa original_price và price) lớn nhất.
+q6 = """select product_name,price,original_price,(cast(original_price as integer)- cast(price as integer)) as chenhlech
+        from products
+        where original_price != ''
+        order by chenhlech desc
+        limit 10 """
+    #     Sản phẩm đắt nhất: Tìm và hiển thị sản phẩm có giá bán cao nhất.
+q7 = """select * from products where cast(price as integer) = (select max(cast(price as integer)) from products)"""
+    #     Thống kê theo đơn vị: Đếm số lượng sản phẩm theo từng Đơn vị tính (unit).
+q8 = """select unit, count(*) as num from products group by unit order by num desc"""
+    #     Sản phẩm cụ thể: Tìm kiếm và hiển thị tất cả thông tin của các sản phẩm có tên chứa từ khóa "Vitamin C".
+q9 = """select * from products where product_name like '%Vitamin C%'"""
+    #     Lọc theo giá: Liệt kê các sản phẩm có giá bán nằm trong khoảng từ 100.000 VNĐ đến 200.000 VNĐ.
+q10 = """select product_name, price from products where cast(price as integer) between 100000 and 200000 """
+    # Nhóm 3: Các Truy vấn Nâng cao (Tùy chọn)
+    #     Sắp xếp: Sắp xếp tất cả sản phẩm theo Giá bán từ thấp đến cao.
+q11 = """select product_name, price from products order by cast(price as integer) asc"""
+    #     Phần trăm giảm giá: Tính phần trăm giảm giá cho mỗi sản phẩm và hiển thị 5 sản phẩm có phần trăm giảm giá cao nhất (Yêu cầu tính toán trong query hoặc sau khi lấy data).
+q12 = """select product_name, price, original_price, round(((cast(original_price as float)-cast(price as float)) / cast(original_price as float)) *100, 2) as phantram
+         from products
+         where original_price != '' and original_price != '0'
+         order by phantram desc
+         limit 5"""
+    #     Xóa bản ghi trùng lặp: Viết câu lệnh SQL để xóa các bản ghi bị trùng lặp, chỉ giữ lại một bản ghi (sử dụng Subquery hoặc Common Table Expression - CTE).
+q13 = """delete from products where rowid not in(select min(row) from products group by product_name)"""
+    #     Phân tích nhóm giá: Đếm số lượng sản phẩm trong từng nhóm giá (ví dụ: dưới 50k, 50k-100k, trên 100k).
+q14 = """select
+            case when cast(price as integer) < 50000 then 'duoi 50k'
+                when cast(price as integer) between 50000 and 100000 then '50k - 100k'
+                else 'tren 100k'
+            end as nhom,
+            count(*) as num
+        from products
+        group by nhom
+        """
+    #     URL không hợp lệ: Liệt kê các bản ghi mà trường product_url bị NULL hoặc rỗng.
+q15 = """select* from products where product_url is null or product_url = ''"""
+cursor.execute(q1)
+conn.commit()
 
 # Dong ket noi 
 conn.close()
+print("\nĐã đóng kết nối cơ sở dữ liệu.")
 
 
 
