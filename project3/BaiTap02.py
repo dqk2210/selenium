@@ -53,8 +53,6 @@ def safe_quit_driver(driver):
         pass
 
 def extract_dates_from_text(text):
-    # Tìm kiếm mẫu: (Năm - Năm)
-    # Hỗ trợ cả dấu gạch ngang (-) và gạch dài (–), có thể có khoảng trắng
     match = re.search(r'\((\d{3,4})[\s–-]+(\d{3,4})\)', text)
     if match:
         return match.group(1), match.group(2) # Trả về (birth, death)
@@ -83,7 +81,7 @@ def extract_nationality(li_text: str) -> str:
         r'\b(painter|artist|sculptor|printmaker|illustrator|ceramicist|muralist|miniaturist|portraitist|landscape|designer|weaver|photographer)\b',
         r'\b(portrait|still life|abstract|folk|watercolour|watercolor|oil|tapestry|religious|genre|history|marine|animal|romantic|modern)\b',
         r'\b(golden age|baroque|renaissance|impressionist|expressionist|surrealist|cubist|realist|futurist|still-life|teacher|battle-scene|lithographer|art director|graphic|etcher)\b',
-        r'and' # Để xử lý trường hợp 'Scottish linocut and woodcut'
+        r'and' 
     ]
 
     # 3. Thực hiện loại bỏ tuần tự
@@ -269,7 +267,7 @@ B. Yêu Cầu Lọc và Tìm Kiếm
 4. Tìm và hiển thị tên của các họa sĩ có tên bắt đầu bằng ký tự 'F'.
 SELECT name FROM painters_info WHERE name like "F%"
 5. Tìm và hiển thị tên và quốc tịch của những họa sĩ có quốc tịch chứa từ khóa 'French' (ví dụ: French, French-American).
-SELECT name nationality FROM painters_info WHERE nationality like "%French%
+SELECT name, nationality FROM painters_info WHERE nationality like "%French%
 6. Hiển thị tên của các họa sĩ không có thông tin quốc tịch (hoặc để trống, hoặc NULL).
 SELECT name FROM painters_info WHERE nationality IS NULL or nationality =''
 7. Tìm và hiển thị tên của những họa sĩ có cả thông tin ngày sinh và ngày mất (không rỗng).
